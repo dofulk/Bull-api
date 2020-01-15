@@ -2,12 +2,14 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs')
 const Comment = require('./models/comment');
 const Group = require('./models/group');
 const User = require('./models/user');
 const Image = require('./models/image');
 const multer = require('multer');
 const fs = require('fs')
+
 
 const Mongo = 'mongodb://localhost/backroomdb';
 const upload = multer({ dest: 'uploads/' });

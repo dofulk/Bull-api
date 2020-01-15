@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const GroupSchema = new Schema({
   name: {
     type: String,
-    required: [true, 'user required']
+    required: [true, 'group name required']
   },
   latest: {
     type: String,
@@ -15,7 +15,7 @@ const GroupSchema = new Schema({
     items: {
       type: String
     },
-    required: [true, 'message required']
+    required: [true, 'users required']
 
   },
   admin: {
