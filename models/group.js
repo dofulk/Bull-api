@@ -8,24 +8,15 @@ const GroupSchema = new Schema({
   },
   latest: {
     type: String,
-  }
-  ,
+  },
   users: {
     type: Array,
     items: {
       type: String
     },
     required: [true, 'users required']
+  },
 
-  },
-  admin: {
-    type: String
-  },
-  img: {
-    data: Buffer,
-    type: String
-  }
-  
 });
 
 

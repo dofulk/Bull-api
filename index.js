@@ -1,11 +1,12 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs')
+const auth = require('./middleware/auth')
 const Comment = require('./models/comment');
-const Group = require('./models/group');
-const User = require('./models/user');
+const groupController = require('./controllers/group')
+const userController = require('./controllers/user')
 const Image = require('./models/image');
 const multer = require('multer');
 const fs = require('fs')
@@ -13,11 +14,16 @@ const fs = require('fs')
 
 const Mongo = 'mongodb://localhost/backroomdb';
 const upload = multer({ dest: 'uploads/' });
-
-
 io.set('origins', '*:*');
 
-mongoose.connect(Mongo, { useNewUrlParser: true });
+app.use(express.json())
+// app.use(express.urlencoded({extended: false}));
+
+mongoose.connect(Mongo, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+});
 
 
 const db = mongoose.connection;
@@ -39,29 +45,13 @@ io.on('connection', (socket) => {
       io.emit('message', comment)
     });
   });
-  socket.on('group', (group) => {
-    Group.create(group).then(chat => {
-      console.log(chat);
-      chat.save((err) => {
-        if (err) console.log(err)
-      });
-      io.emit('group', chat)
-    });
-  });
-  socket.on('new_user', (user) => {
-    User.create(user).then(usr => {
-      console.log(usr);
-      usr.save((err) => {
-        if (err) console.log(err)
-      });
-      io.emit('new_user', usr)
-    });
-  });
 });
 
 io.on('error', console.error.bind(console, 'io error'));
 
+app.post('/users',  userController.create)
 
+app.post('/users/login', userController.authenticate)
 
 app.post('/upload', upload.array('image.jpeg'), (req, res, next) => {
   console.log(req.body.photo)
@@ -86,10 +76,9 @@ app.get('/loadphoto', (req, res) => {
 })
 
 
-app.post('/group', (req, res) => {
+app.post('/group', auth, (req, res) => {
   res.send('hi')
 })
-
 
 
 http.listen(3000, function () {

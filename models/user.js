@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt')
+const saltRounds = 10
 
 const UserSchema = new Schema({
   phoneNumber: {
     type: String,
-    unique: true,
     required: [true, 'Phone number required']
   },
   username: {
@@ -15,13 +16,13 @@ const UserSchema = new Schema({
     type: String,
     required: [true, 'Password required']
   },
-  avatar: {
-    data: Buffer,
-    type: String,
-  }
-  
 });
 
+
+UserSchema.pre('save', function(next){
+  this.password = bcrypt.hashSync(this.password, saltRounds);
+  next();
+  });
 
 
 const User = mongoose.model('user', UserSchema);
