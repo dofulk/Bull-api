@@ -21,7 +21,9 @@ After cloning this you'll need to run npm install and then it can be run with no
 
 ## Features
 
-Handles creating new messages, groups and users.
+JWT Authentication.
+
+Creates messages, users, and groups in a Mongodb database
 
 
 
@@ -29,4 +31,3 @@ Handles creating new messages, groups and users.
 
 Edit groups and users.
 Save Photo and video.
-Authentication
