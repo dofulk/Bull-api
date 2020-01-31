@@ -16,6 +16,9 @@ const UserSchema = new Schema({
     type: String,
     required: [true, 'Password required']
   },
+  groups: {
+    type: Array
+  }
 });
 
 

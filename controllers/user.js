@@ -10,15 +10,33 @@ module.exports = {
       password: req.body.password,
     }, (err, result) => {
       if (err) {
-        next(err)
+        console.log(err)
       } else {
-        res.send({
+        console.log('user added')
+        const token = jwt.sign({ id: result._id }, process.env.MYAPIKEY,
+          { expiresIn: 86400 });
+        res.json({
           status: "success",
           message: "User added successfully!",
-          data: null
+          token: token,
+          user: result
         });
       }
     });
+  },
+
+  addGroup: (req, res, next) => {
+    console.log(req)
+    userModel.findByIdAndUpdate(
+      req.body.userId,
+      { $push: { groups: req.body.group } },
+      (err, doc) => {
+        if (err) {
+          res.send(err)
+        } else {
+          res.send(req.body)
+        }
+      })
   },
 
   authenticate: (req, res, next) => {
@@ -26,10 +44,10 @@ module.exports = {
       if (err) {
         next(err)
       } else {
-        
+
         if (bcrypt.compareSync(req.body.password, userInfo.password)) {
           const token = jwt.sign({ id: userInfo._id }, process.env.MYAPIKEY,
-            { expiresIn: '1h' });
+            { expiresIn: 86400 });
 
           res.json({
             status: "success",

@@ -6,6 +6,10 @@ const CommentSchema = new Schema({
     type: String,
     required: [true, 'user required']
   },
+  userId: {
+    type: String,
+    required: [true, 'userId required']
+  },
   message: {
     type: String,
     required: [true, 'message required']
@@ -15,7 +19,6 @@ const CommentSchema = new Schema({
     items: {
       type: String
     }
-
   },
   chat: {
     type: String,

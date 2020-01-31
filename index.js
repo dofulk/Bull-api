@@ -1,5 +1,9 @@
+// Dev only
+require('dotenv').config();
+//
 const express = require('express');
 const app = express();
+app.use(express.json())
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
@@ -14,15 +18,18 @@ const fs = require('fs')
 
 const Mongo = 'mongodb://localhost/backroomdb';
 const upload = multer({ dest: 'uploads/' });
+
 io.set('origins', '*:*');
 
-app.use(express.json())
+
+
 // app.use(express.urlencoded({extended: false}));
 
 mongoose.connect(Mongo, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
+ useFindAndModify: false
 });
 
 
@@ -34,51 +41,53 @@ db.on('open', (ref) => {
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-io.on('connection', (socket) => {
-  console.log('user connected')
-  socket.on('message', (msg) => {
-    Comment.create(msg).then(comment => {
-      console.log(comment);
-      comment.save((err) => {
-        if (err) console.log(err)
-      });
-      io.emit('message', comment)
-    });
-  });
-});
+// io.on('connection', (socket) => {
+//   console.log('user connected')
+//   socket.on('message', (msg) => {
+//     Comment.create(msg).then(comment => {
+//       console.log(comment);
+//       comment.save((err) => {
+//         if (err) console.log(err)
+//       });
+//       io.emit('message', comment)
+//     });
+//   });
+// });
 
 io.on('error', console.error.bind(console, 'io error'));
 
-app.post('/users',  userController.create)
+app.post('/message', auth, (res, req, next) => {
+  Comment.create(req.req.body).then(msg => {
+    console.log(msg);
+    msg.save((err) => {
+      if (err)
+        res.send(err)
+    })
+    io.emit('message', msg)
+  })
+});
+
+app.post('/users', userController.create)
 
 app.post('/users/login', userController.authenticate)
 
 app.post('/upload', upload.array('image.jpeg'), (req, res, next) => {
   console.log(req.body.photo)
-  Image.create(
-    {
-      img: {
-        data: req.body.file,
-        contentType: 'image/jpeg'
-      }
-    }).then(img => {
-      console.log(img)
-      res.send(img._id)
-    }).catch(err => console.log(err))
+});
 
-})
-
-app.get('/loadphoto', (req, res) => {
+app.get('/loadphoto', (req, res, next) => {
   Image.findById(req.query.id, (err, image) => {
     res.contentType(image.img.contentType)
     res.send(image.img.data)
   })
-})
+});
 
 
-app.post('/group', auth, (req, res) => {
-  res.send('hi')
-})
+app.post('/group',
+  auth,
+  groupController.create,
+  userController.addGroup
+);
 
 
 http.listen(3000, function () {

@@ -9,13 +9,12 @@ module.exports = {
       if (err) {
         next(err)
       } else {
-        res.json({
-          status: "success",
-          message: "Movie added successfully",
-          data: {id: result._id}
-        })
+        req.body.groupId = result.id;
+        req.body.name = result.name;
+        next()
       }
     });
+    
   },
 
   getById: (req, res, next) => {
