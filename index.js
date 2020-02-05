@@ -17,6 +17,16 @@ const fs = require('fs')
 
 
 const Mongo = 'mongodb://localhost/backroomdb';
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './upload');
+  },
+  filename: function (req, file, cb) {
+    console.log(file)
+    cb(null, file.originalname);
+  }
+});
 const upload = multer({ dest: 'uploads/' });
 
 io.set('origins', '*:*');
@@ -29,7 +39,7 @@ mongoose.connect(Mongo, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
- useFindAndModify: false
+  useFindAndModify: false
 });
 
 
@@ -71,15 +81,17 @@ app.post('/users', userController.create)
 
 app.post('/users/login', userController.authenticate)
 
-app.post('/upload', upload.array('image.jpeg'), (req, res, next) => {
-  console.log(req.body.photo)
+app.post('/upload', auth, upload.single('image'), (req, res, next) => {
+  try {
+    res.send(req.file);
+  } catch (err) {
+    res.send(400)
+  }
 });
 
-app.get('/loadphoto', (req, res, next) => {
-  Image.findById(req.query.id, (err, image) => {
-    res.contentType(image.img.contentType)
-    res.send(image.img.data)
-  })
+app.get('/uploads/:id', (req, res, next) => {
+  let path = req.params.id
+  res.sendFile(path, {root: './uploads'})
 });
 
 
