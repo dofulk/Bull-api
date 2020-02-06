@@ -23,7 +23,9 @@ After cloning this you'll need to run npm install and then it can be run with no
 
 JWT Authentication.
 
-Creates messages, users, and groups in a Mongodb database
+Creates messages, users, and groups in a Mongodb database,
+
+Saves photos to 
 
 
 
